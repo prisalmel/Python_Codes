@@ -1,0 +1,68 @@
+from datetime import datetime, timedelta
+import pandas as pd
+import numpy as np
+
+feriados = pd.read_csv("C:/Users/priscila.maturana/Documents/python/feriados.csv")
+feriados['data'] = pd.to_datetime(feriados.data).dt.strftime('%d-%m-%Y')
+bd = pd.read_csv("C:/Users/priscila.maturana/Documents/python/base.csv", sep=";")
+bd['vencimentos'] = pd.to_datetime(bd.vencimentos).dt.strftime('%d-%m-%Y')
+data_base = datetime.strptime(input(), '%d-%m-%Y')
+
+class CRA:
+    def __init__(self, defasagem_venc, taxa, qtd, saldo, tae, vencimentos):
+        self.defasagem_venc = defasagem_venc
+        self.taxa = taxa
+        self.qtd = qtd
+        self.saldo = saldo
+        self.tae = tae
+        self.vencimentos = vencimentos
+
+    def data_inicial(self):
+        my_dates_list = pd.to_datetime(self.vencimentos)
+        test_date = pd.to_datetime(data_base)
+        data_inicio = my_dates_list[my_dates_list < test_date].sort_values(ascending=False)[0]
+        return data_inicio.strftime('%d-%m-%Y')
+
+    def du(self):
+        lista_datas = [self.data_inicial() + timedelta(days=i) for i in range((data_base - self.data_inicial()).days + 1)]
+        lista_vigente = [x for x in lista_datas if x not in [datetime.strptime(v, '%d-%m-%Y') for v in feriados.data.values] and x.weekday() not in (5, 6)]
+        return float('{}'.format(round(len(lista_vigente)-1,0)))
+
+    def fator_pre(self):
+        return float('{}'.format(round(((self.taxa / 100) + 1)**(self.du()/252), 9)))
+
+    def saldo_anterior(self):
+        return float('{}'.format(round(self.saldo[self.vencimentos.index(self.data_inicial())], 9)))
+
+    def remuneracao(self):
+        return float('{}'.format(round((self.fator_pre() - 1) * self.saldo_anterior(), 8)))
+
+    def preco_unitario(self):
+        return float('{}'.format(round(self.fator_pre() * self.saldo_anterior(), 8)))
+
+    def financeiro(self):
+        return float('{}'.format(round(self.preco_unitario() * self.qtd, 2)))
+
+CRA022001JL = CRA(bd.defasagem_venc.tolist(), bd.taxa[0], bd.qtd[0], bd.saldo.tolist(), bd.tae.tolist(), bd.vencimentos.tolist())
+#cra037 = CRA(bd.taxa[0], bd.qtd[0], bd.saldo.tolist(), bd.tae.tolist(), bd.vencimentos.tolist())
+
+# print(CRA022001JL.data_inicial())
+# print(CRA022001JL.du())
+# print(CRA022001JL.fator_pre())
+print(CRA022001JL.saldo_anterior())
+# print(CRA022001JL.remuneracao())
+# print(CRA022001JL.preco_unitario())
+# print(CRA022001JL.financeiro())
+#print(cra037.du())
+#print(CRA022001JL.financeiro())
+
+# dados_finais = pd.DataFrame({
+#     'Codigo IF': [bd.cod[0]], 'Emissao': [bd.emissao[0]], 'Serie': [bd.serie[0]], 'Data Base': [data_base], 
+#     'Saldo Anterior': [CRA022001JL.saldo_anterior()], 'Dias Uteis': [CRA022001JL.du()],
+#     'Taxa Pre': [CRA022001JL.fator_pre()], 'PU Juros': [CRA022001JL.remuneracao()],
+#     'PU Total': [CRA022001JL.preco_unitario()], 'Financeiro Total': [CRA022001JL.financeiro()]
+# })
+
+# df = dados_finais.set_index('Codigo IF')
+# df.to_excel('converted-to-excel.xlsx')
+# df.to_excel('converted-to-excel.xlsx')
