@@ -15,7 +15,7 @@ for index, row in bd.iterrows():
   outlook = win32.Dispatch('outlook.application')
   email = outlook.CreateItem(0)
   email.To = bd.Destinatario[index] #destinatario
-  email.CC = "precificacao@ecoagro.agr.br"
+  email.CC = "email@gmail.com"
   email.Subject = f"Posição Dívida - {str(bd.Devedor[index])} - {referencia}"
   Content_Email = f"""
   <p>Prezados,</p>
