@@ -1,0 +1,50 @@
+import win32com.client as win32
+import pandas as pd
+import math
+from datetime import datetime
+
+#outlook = win32.Dispatch('outlook.application')
+#email = outlook.CreateItem(0)
+bd = pd.read_excel('Z:/Usuários/Priscila.Maturana/email_saldo_devedor.xlsx')
+now = datetime.now()
+data = now.strftime("%d/%m/%Y")
+referencia = now.strftime("%b/%y")
+
+for index, row in bd.iterrows():
+
+  outlook = win32.Dispatch('outlook.application')
+  email = outlook.CreateItem(0)
+  email.To = bd.Destinatario[index] #destinatario
+  email.CC = "precificacao@ecoagro.agr.br"
+  email.Subject = f"Posição Dívida - {str(bd.Devedor[index])} - {referencia}"
+  Content_Email = f"""
+  <p>Prezados,</p>
+  <p>Segue a posição de dívida do Emitente {bd.Devedor[index]} na data base {data}, último dia útil de {referencia}:</p>"""
+  if not math.isnan(float(bd.Valor_CRA1[index])):
+    Content_Email += f"""<p>{bd.CRA1[index]}: R$ {'{:,.2f}'.format(bd.Valor_CRA1[index]).replace(",", "X").replace(".", ",").replace("X", ".")}</p>"""
+  if not math.isnan(float(bd.Valor_CRA2[index])):
+    Content_Email += f"""<p>{bd.CRA2[index]}: R$ {'{:,.2f}'.format(bd.Valor_CRA2[index]).replace(",", "X").replace(".", ",").replace("X", ".")}</p>"""
+  if not math.isnan(float(bd.Valor_CRA3[index])):
+    Content_Email += f"""<p>{bd.CRA3[index]}: R$ {'{:,.2f}'.format(bd.Valor_CRA3[index]).replace(",", "X").replace(".", ",").replace("X", ".")}</p>"""
+  if not math.isnan(float(bd.Valor_CRA4[index])):
+    Content_Email += f"""<p>{bd.CRA4[index]}: R$ {'{:,.2f}'.format(bd.Valor_CRA4[index]).replace(",", "X").replace(".", ",").replace("X", ".")}</p>"""
+  if not math.isnan(float(bd.Valor_Lastro1[index])):
+    Content_Email += f"""<p>{bd.Lastro1[index]}: R$ {'{:,.2f}'.format(bd.Valor_Lastro1[index]).replace(",", "X").replace(".", ",").replace("X", ".")}</p>"""
+  if not math.isnan(float(bd.Valor_Lastro2[index])):
+    Content_Email += f"""<p>{bd.Lastro2[index]}: R$ {'{:,.2f}'.format(bd.Valor_Lastro2[index]).replace(",", "X").replace(".", ",").replace("X", ".")}</p>"""
+  if not math.isnan(float(bd.Valor_Lastro3[index])):
+    Content_Email += f"""<p>{bd.Lastro3[index]}: R$ {'{:,.2f}'.format(bd.Valor_Lastro3[index]).replace(",", "X").replace(".", ",").replace("X", ".")}</p>"""
+  if not math.isnan(float(bd.Valor_Lastro4[index])):
+    Content_Email += f"""<p>{bd.Lastro4[index]}: R$ {'{:,.2f}'.format(bd.Valor_Lastro4[index]).replace(",", "X").replace(".", ",").replace("X", ".")}</p>"""
+  """<p>Atenciosamente,</p>
+  """
+  #email.Attachments.Add(bd.Anexo1[index])
+  #if not math.isnan(float(bd.Valor_CRA4[index])):
+  #  email.Attachments.Add(bd.Anexo2[index])
+
+  attachment = email.Attachments.Add("C:/Users/priscila.maturana/Documents/python/signature.png")
+  attachment.PropertyAccessor.SetProperty("http://schemas.microsoft.com/mapi/proptag/0x3712001F", "MyId1")
+
+  email.HTMLBody = Content_Email + "<html><body><img src=""cid:MyId1""></body></html>"
+  email.Display(True)
+  #email.Send()
