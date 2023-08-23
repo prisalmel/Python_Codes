@@ -3,7 +3,6 @@ import pandas as pd
 import time
 
 df = pd.read_excel('Z:/Usuários/Priscila.Maturana/vigentes.xlsx', sheet_name='ipca')
-#xlapp.Visible = False
 
 for i, j in df.iterrows():
   xlapp = win32.DispatchEx("Excel.Application")
