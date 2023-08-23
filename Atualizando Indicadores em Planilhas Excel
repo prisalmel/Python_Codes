@@ -1,0 +1,17 @@
+import win32com.client as win32
+import pandas as pd
+import time
+
+df = pd.read_excel('Z:/Usuários/Priscila.Maturana/vigentes.xlsx', sheet_name='ipca')
+#xlapp.Visible = False
+
+for i, j in df.iterrows():
+  xlapp = win32.DispatchEx("Excel.Application")
+  wb2 = xlapp.Workbooks.Open("Z:/Precificação/ATIVOS (CALCULOS)/TAXA BASE.xlsx")
+  wb = xlapp.Workbooks.Open(df.caminho[i])
+  #xlapp.Visible = False
+  wb.RefreshAll()
+  time.sleep(5)
+  wb.Save()
+  xlapp.Quit()
+  time.sleep(5)
